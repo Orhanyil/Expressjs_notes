@@ -2,7 +2,7 @@
 
 ## What? Why?
 
-### MVC:
+### Model Logic in MVC:
 
 ![](./intro-mvc.png)
 
