@@ -55,11 +55,11 @@ module.exports = {
 
         const data = await Department.deleteOne({ _id: req.params.id })
 
+        const isDeleted = data.deletedCount > 0
 
-        res.status(data.deletedCount >= 1 ? 204 : 404).send({
-            error: false,
-            data 
+        res.status(isDeleted ? 204 : 404).send({
+            error: !isDeleted,
+            data
         })
-
     },
 }
