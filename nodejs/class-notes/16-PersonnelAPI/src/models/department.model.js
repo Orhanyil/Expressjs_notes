@@ -4,3 +4,13 @@
 ------------------------------------------------------- */
 const { mongoose } = require('../configs/dbConnection')
 /* ------------------------------------------------------- */
+
+const DepartmentShcema = new mongoose.Schema({
+
+    name: {
+        type: String,
+        trim: true,
+        required: true,
+        unique: true
+    }
+}, { collection: "departments", timestamps: true })
