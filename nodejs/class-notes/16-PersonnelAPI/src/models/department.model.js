@@ -14,3 +14,6 @@ const DepartmentShcema = new mongoose.Schema({
         unique: true
     }
 }, { collection: "departments", timestamps: true })
+
+/*-----------------------------------------------------*/
+module.exports = mongoose.model('Department', DepartmentShcema)
