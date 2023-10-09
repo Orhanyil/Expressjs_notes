@@ -12,59 +12,72 @@ const express = require('express')
 const app = express()
 
 /* ------------------------------------------------------- */
-//Required Modules:
+// Required Modules:
 
+// envVariables to process.env:
+require('dotenv').config()
+const PORT = process.env?.PORT || 8000
 
-//envVariables to process.env
-
-require("dotenv").config();
-const PORT = process.env.PORT || 8000;
-
-//asyncErrors to errorHandler:
+// asyncErrors to errorHandler:
 require('express-async-errors')
 
-/*-------------------------------------------------*/
-//Configrations
+/* ------------------------------------------------------- */
+// Configrations:
 
-const { dbConnection} = require('./src/configs/dbConnection')
+// Connect to DB:
+const { dbConnection } = require('./src/configs/dbConnection')
 dbConnection()
 
-/*-----------------------------------------------------*/
-//Middlewares:
+/* ------------------------------------------------------- */
+// Middlewares:
+
+// Accept JSON:
 app.use(express.json())
 
-/*-----------------------------------------------------*/
 // SessionsCookies:
 app.use(require('cookie-session')({ secret: process.env.SECRET_KEY }))
-
-/*-----------------------------------------------------*/
 
 // res.getModelList():
 app.use(require('./src/middlewares/findSearchSortPage'))
 
-/*-------------------------------------------------------*/
+// Login/Logout Control Middleware
+app.use(async (req, res, next) => {
 
-//Routes:
+    const Personnel = require('./src/models/personnel.model')
 
+    req.isLogin = false
 
+    if (req.session?.id) {
 
-/*--------------------------------------------------------*/
+        const user = await Personnel.findOne({ _id: req.session.id })
+
+        // if (user.password == req.session.password) {
+        //     req.isLogin = true
+        // }
+        req.isLogin = user.password == req.session.password
+    }
+    console.log('isLogin: ', req.isLogin)
+
+    next()
+})
+
+/* ------------------------------------------------------- */
+// Routes:
 
 // HomePath:
 app.all('/', (req, res) => {
     res.send({
         error: false,
         message: 'Welcome to PERSONNEL API',
+        session: req.session,
+        isLogin: req.isLogin
     })
 })
 
-
-
-
-
-// continue from here...
-
-
+// /departments
+app.use('/departments', require('./src/routes/department.router'))
+// /personnels
+app.use('/personnels', require('./src/routes/personnel.router'))
 
 /* ------------------------------------------------------- */
 

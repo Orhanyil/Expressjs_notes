@@ -3,17 +3,19 @@
     EXPRESS - Personnel API
 ------------------------------------------------------- */
 
-const Department = require('./models/department.model')
+const Department = require('../models/department.model')
 
 module.exports = {
 
     list: async (req, res) => {
 
+        // const data = await Department.find(search).sort(sort).skip(skip).limit(limit)
         const data = await res.getModelList(Department)
 
         res.status(200).send({
             error: false,
-            data //data: data
+            detail: await res.getModelListDetails(Department),
+            data // data: data
         })
 
     },
@@ -24,19 +26,20 @@ module.exports = {
 
         res.status(201).send({
             error: false,
-            data //data: data
+            data
         })
 
     },
 
     read: async (req, res) => {
 
-        const data = await Department.findOne({_id: req.params.id})
+        const data = await Department.findOne({ _id: req.params.id })
 
         res.status(200).send({
             error: false,
-            data 
+            data
         })
+
     },
 
     update: async (req, res) => {
@@ -48,18 +51,36 @@ module.exports = {
             data,
             new: await Department.findOne({ _id: req.params.id })
         })
-
     },
 
     delete: async (req, res) => {
 
         const data = await Department.deleteOne({ _id: req.params.id })
 
-        const isDeleted = data.deletedCount > 0
-
-        res.status(isDeleted ? 204 : 404).send({
-            error: !isDeleted,
+        res.status(data.deletedCount ? 204 : 404).send({
+            error: !data.deletedCount,
             data
         })
+
+        // const isDeleted = data.deletedCount >= 1 ? true : false
+
+        // res.status(isDeleted ? 204 : 404).send({
+        //     error: !isDeleted,
+        //     data
+        // })
+    },
+
+    personnels: async (req, res) => {
+
+        const Personnel = require('../models/personnel.model')
+
+        const data = await res.getModelList(Personnel, { departmentId: req.params.id }, 'departmentId')
+
+        res.status(200).send({
+            error: false,
+            detail: await res.getModelListDetails(Personnel, { departmentId: req.params.id }, 'departmentId'),
+            data
+        })
+
     },
 }
