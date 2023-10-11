@@ -1,36 +1,29 @@
-const { JsonWebTokenError } = require("jsonwebtoken")
-
 "use strict"
-
-/*-------------------------------------------
-EKSPRESS - PERSONEL API
-----------------------------------------------*/
-
-//JWT
-//npm i JsonWebToken
+/* -------------------------------------------------------
+    EXPRESS - Personnel API
+------------------------------------------------------- */
+// JWT
+// npm i jsonwebtoken
 
 const Personnel = require('../models/personnel.model')
+const jwt = require('jsonwebtoken')
 
 module.exports = {
 
     login: async (req, res) => {
 
-        // 1: 30min -> access -> username, firstname, lastname, profileurl, isAdmin, isLogin
-        // 2: 72hour -> refresh -> id, password
+        const { username, password } = req.body
 
-        const {username, password} = req.body
+        if (username && password) {
 
-        if (username & password) {
+            const user = await Personnel.findOne({ username, password })
 
-            const user = await Personel.findOne({username, password})
+            if (user) {
 
-            if(user) {
                 if (user.isActive) {
+                // Login OK
 
-                //login OK
-                
-                    const jwtData = {
-
+                    const accessData = {
                         _id: user._id,
                         departmentId: user.departmentId,
                         firstName: user.firstName,
@@ -40,32 +33,38 @@ module.exports = {
                         isLead: user.isLead,
                     }
 
-                    const refreshData = {
+                    const accessToken = jwt.sign(accessData, process.env.SECRET_KEY, {expiresIn: '30m'})
 
-                        
+                    const refreshData = {
+                        username: user.username,
+                        password: user.password
                     }
 
+
+
                 } else {
+
                     res.errorStatusCode = 401
                     throw new Error('This account is not active.')
                 }
             } else {
+
                 res.errorStatusCode = 401
-                throw new Error('This account is not active.')
+                throw new Error('Wrong username or password.')
             }
         } else {
-            res.errorStatusCode = 401
-            throw new Error('This account is not active.')
-        }
 
+            res.errorStatusCode = 401
+            throw new Error('Please entry username and password.')
+        }
     },
 
     refresh: async (req, res) => {
-        
+
     },
 
     logout: async (req, res) => {
-        
-    }
+
+    },
 
 }
