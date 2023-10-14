@@ -52,6 +52,9 @@ app.all('/', (req, res) => {
     })
 })
 
+// Users:
+
+app.use('/users', require('./src/routes/user'))
 
 /* ------------------------------------------------------- */
 
